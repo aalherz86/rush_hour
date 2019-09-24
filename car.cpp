@@ -62,7 +62,7 @@ void physics();
 void render();
 extern void showCredit();
 extern void showMcredit();
-
+extern void displayName();
 class Global {
 public:
 
@@ -518,6 +518,7 @@ void render()
 	if (g.showCredit) {
 		showCredit();
 		showMcredit();
+		displayName();
 	} else {
 		/* code */
 	}
