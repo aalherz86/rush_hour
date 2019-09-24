@@ -61,6 +61,7 @@ int check_keys(XEvent *e);
 void physics();
 void render();
 extern void showCredit();
+extern void showMcredit();
 
 class Global {
 public:
@@ -516,6 +517,7 @@ void render()
 
 	if (g.showCredit) {
 		showCredit();
+		showMcredit();
 	} else {
 		/* code */
 	}

@@ -5,7 +5,7 @@ LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
 all: car
 
 car: car.cpp log.cpp aliA.cpp mohanadA.cpp hussainJ.cpp
-	g++ $(CFLAGS) car.cpp log.cpp  aliA.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -o car
+	g++ $(CFLAGS) car.cpp log.cpp  aliA.cpp mohanadA.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -o car
 
 clean:
 	rm -f car
