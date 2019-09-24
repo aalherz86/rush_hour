@@ -60,15 +60,20 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
+extern void showCredit();
 
 class Global {
 public:
+
+	int showCredit;
 	int xres, yres;
 	Flt aspectRatio;
 	Vec cameraPosition;
 	GLfloat lightPosition[4];
 	Global() {
 		//constructor
+		
+		showCredit = 0; 
 		xres=640;
 		yres=480;
 		aspectRatio = (GLfloat)xres / (GLfloat)yres;
@@ -277,6 +282,9 @@ int check_keys(XEvent *e)
 				break;
 			case XK_s:
 				break;
+			case XK_c:
+				g.showCredit ^= 1;
+				break;
 			case XK_Escape:
 				return 1;
 		}
@@ -470,7 +478,7 @@ void physics()
 
 void render()
 {
-	Rect r;
+	Rect r[5];
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	//
 	//3D mode
@@ -487,6 +495,10 @@ void render()
 	glLightfv(GL_LIGHT0, GL_POSITION, g.lightPosition);
 	//
 	drawStreet();
+	
+	
+	
+	
 	//
 	//
 	//
@@ -501,10 +513,22 @@ void render()
 	glDisable(GL_LIGHTING);
 	//glDisable(GL_DEPTH_TEST);
 	//glDisable(GL_CULL_FACE);
-	r.bot = g.yres - 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint8b(&r, 16, 0x00887766, "car framework");
+
+	if (g.showCredit) {
+		showCredit();
+	} else {
+		/* code */
+	}
+	r[0].bot = g.yres - 50;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "C --- Credit");
+
+
+	r[1].bot = g.yres - 20;
+	r[1].left = 10;
+	r[1].center = 0;
+	ggprint8b(&r[1], 16, 0x00887766, "car framework");
 	glPopAttrib();
 }
 
