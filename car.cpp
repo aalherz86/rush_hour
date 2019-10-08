@@ -64,6 +64,7 @@ extern void showCredit();
 extern void showMcredit();
 extern void displayName();
 extern int updatedScores (int, char[]);
+extern void phpInfo();
 
 class Global {
 public:
