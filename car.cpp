@@ -64,6 +64,7 @@ extern void showCredit();
 extern void showMcredit();
 extern void displayName();
 extern int updatedScores (int, char[]);
+
 class Global {
 public:
 

@@ -16,6 +16,8 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+extern void phpInfo();
+
 // Global Area
 #define PORT 443
 #define USERAGENT "CMPS-3350"
@@ -47,8 +49,8 @@ int updatedScores (int argc, char *argv[]) {
     SSL *ssl;
     char req[1000];
     int req_len;
-    char hostname[256] = "odin.cs.csubak.edu";
-    char pagename[256] = "/~hjafri/3350/lab7/lab7.php";
+    char hostname[256] = phpInfo.hostname;
+    char pagename[256] = phpInfo.pagenam;
     int port = PORT;
     int bytes, nreads, nerrs;
     char buf[256];
