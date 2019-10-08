@@ -15,8 +15,7 @@
 #include <openssl/pem.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
-
+void set_to_non_blocking(const int sock);
 // Global Area
 #define PORT 443
 #define USERAGENT "CMPS-3350"
@@ -48,8 +47,8 @@ int updatedScores (int argc, char *argv[]) {
     SSL *ssl;
     char req[1000];
     int req_len;
-    char hostname[256] = "";
-    char pagename[256] = "";
+    char hostname[256] = "odin.cs.csubak.edu";
+    char pagename[256] = "/~hjafri/3350/lab7/lab7.php";
     int port = PORT;
     int bytes, nreads, nerrs;
     char buf[256];
@@ -136,6 +135,7 @@ int updatedScores (int argc, char *argv[]) {
 }
 
 // FUNCTION DEFENTIONS:
+//
 
 BIO *ssl_setup_bio(void) {
     //Setup the ssl BIO, basic I/O abstraction.
@@ -173,20 +173,5 @@ void show_cert_data(SSL *ssl, BIO *outbio, const char *hostname) {
     if (BIO_printf(outbio, "\n\n") < 0)
 	fprintf(stderr, "ERROR: BIO_printf\n");
     printf("--------------------------------------------------------------\n");
-}
-
-void set_to_non_blocking(const int sock){
-    //Set a socket to be non-blocking.
-    int opts;
-    opts = fcntl(sock, F_GETFL);
-    if (opts < 0) {
-	perror("ERROR: fcntl(F_GETFL)");
-	exit(EXIT_FAILURE);
-    }
-    opts = (opts | O_NONBLOCK);
-    if (fcntl(sock, F_SETFL, opts) < 0) {
-	perror("ERROR: fcntl(O_NONBLOCK)");
-	exit(EXIT_FAILURE);
-    }
 }
 

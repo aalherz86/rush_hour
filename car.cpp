@@ -18,6 +18,8 @@
 #include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
+#include <fcntl.h>
+
 
 typedef float Flt;
 typedef Flt Vec[3];
@@ -64,7 +66,6 @@ extern void showCredit();
 extern void showMcredit();
 extern void displayName();
 extern int updatedScores (int, char[]);
-extern void phpInfo();
 
 class Global {
 public:
@@ -521,21 +522,31 @@ void render()
 	if (g.showCredit) {
 		showCredit();
 		showMcredit();
-		displayName();
+                displayName();  	
 	} else {
 		/* code */
 	}
+	
+// Ali Display Credit on screen
 	r[0].bot = g.yres - 50;
 	r[0].left = 10;
 	r[0].center = 0;
 	ggprint8b(&r[0], 16, 0x00ffff00, "C --- Credit");
 
+// Mohanad- Display The Highest scores on screen
+
+	r[0].bot = g.yres - 80;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "H --- Highest Scores");
+	
 
 	r[1].bot = g.yres - 20;
 	r[1].left = 10;
 	r[1].center = 0;
 	ggprint8b(&r[1], 16, 0x00887766, "car framework");
 	glPopAttrib();
+	
 }
 
 
