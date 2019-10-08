@@ -19,20 +19,6 @@
 #include "log.h"
 #include "fonts.h"
 
-// New Libs
-#include <openssl/crypto.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <fcntl.h>
-
 typedef float Flt;
 typedef Flt Vec[3];
 typedef Flt	Matrix[4][4];

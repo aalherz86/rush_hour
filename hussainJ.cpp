@@ -47,8 +47,8 @@ int updatedScores (int argc, char *argv[]) {
     SSL *ssl;
     char req[1000];
     int req_len;
-    char hostname[256] = "www.google.com";
-    char pagename[256] = "";
+    char hostname[256] = "odin.cs.csubak.edu";
+    char pagename[256] = "/~hjafri/3350/lab7/lab7.php";
     int port = PORT;
     int bytes, nreads, nerrs;
     char buf[256];
@@ -135,7 +135,6 @@ int updatedScores (int argc, char *argv[]) {
 }
 
 // FUNCTION DEFENTIONS:
-//
 
 BIO *ssl_setup_bio(void) {
     //Setup the ssl BIO, basic I/O abstraction.
