@@ -1,5 +1,17 @@
 // Ali Alherz
+// 
 //
+// 
+//
+//
+/* the debugging steps:
+ * 1. recognize that a bug exists.
+ * 2. isolate the bad code.
+ * 3. fix bad codes.
+ * 4. test the source code.
+ */
+
+
 #include "fonts.h"
 
 
