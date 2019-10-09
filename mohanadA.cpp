@@ -2,6 +2,12 @@
 //First Modification: Display My name on screen when pressing (c) which is the Credit.
 //Second Modification on the main file (car.cpp): Display the Highest scores on screen.
 //Third Modification: adding the fuction from lab3 and call it in hussainJ file 
+/* The Debug steps:
+1-Identify (checking) is to find the debugging.
+2-Isolate is to separate the buggy code with other healthy code
+3-Fix is to correct the buggy code.
+4-Review is to ensure the bug you fixed are working correctly now.
+*/
 
 #include "fonts.h"
 
@@ -29,7 +35,8 @@ void showMcredit()
 
 }
 
-void set_to_non_blocking(const int sock){
+void set_to_non_blocking(const int sock)
+{
     //Set a socket to be non-blocking.
     int opts;
     opts = fcntl(sock, F_GETFL);
