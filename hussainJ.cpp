@@ -1,5 +1,14 @@
 // Hussain Jafri
-
+/*
+ * Quiz
+ * Date: 10/09/2019
+ * 
+ * Debugging steps or Get a Debug Report:
+ * 1. Reduce the bugs.
+ * 2. Locate the bad codes.
+ * 3. Fix the peice of bad codes.
+ * 4. Test the bad codes. And test the whole program as well.
+ */
 #include "fonts.h"
 
 // New Libs
