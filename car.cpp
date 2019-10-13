@@ -7,7 +7,8 @@
 //
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h>
+#include <string.h>
+#include <unistd.h>
 //#include <time.h>
 #include <math.h>
 #include <X11/Xlib.h>
@@ -18,8 +19,10 @@
 #include <GL/glu.h>
 #include "log.h"
 #include "fonts.h"
-#include <fcntl.h>
-
+#include <fstream>
+#include <string>
+#include <vector>
+using namespace std;
 
 typedef float Flt;
 typedef Flt Vec[3];
@@ -65,19 +68,93 @@ void render();
 extern void showCredit();
 extern void showMcredit();
 extern void displayName();
+extern void highscore (int, int*);
+extern void writeScores(int, vector<int>);
+extern vector<int> getHighscore ();
+extern void displayHighscores();
+extern void drawImage(GLuint, int, int);
 extern int updatedScores (int, char[]);
+
+
+
+class Image {
+public:
+	int width, height;
+	unsigned char *data;
+	~Image() { delete [] data; }
+	Image(const char *fname) {
+		if (fname[0] == '\0')
+			return;
+		//printf("fname **%s**\n", fname);
+		int ppmFlag = 0;
+		char name[40];
+		strcpy(name, fname);
+		int slen = strlen(name);
+		char ppmname[80];
+		if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+			ppmFlag = 1;
+		if (ppmFlag) {
+			strcpy(ppmname, name);
+		} else {
+			name[slen-4] = '\0';
+			//printf("name **%s**\n", name);
+			sprintf(ppmname,"%s.ppm", name);
+			//printf("ppmname **%s**\n", ppmname);
+			char ts[100];
+			//system("convert eball.jpg eball.ppm");
+			sprintf(ts, "convert %s %s", fname, ppmname);
+			system(ts);
+		}
+		//sprintf(ts, "%s", name);
+		FILE *fpi = fopen(ppmname, "r");
+		if (fpi) {
+			char line[200];
+			fgets(line, 200, fpi);
+			fgets(line, 200, fpi);
+			//skip comments and blank lines
+			while (line[0] == '#' || strlen(line) < 2)
+				fgets(line, 200, fpi);
+			sscanf(line, "%i %i", &width, &height);
+			fgets(line, 200, fpi);
+			//get pixel data
+			int n = width * height * 3;			
+			data = new unsigned char[n];			
+			for (int i=0; i<n; i++)
+				data[i] = fgetc(fpi);
+			fclose(fpi);
+		} else {
+			printf("ERROR opening image: %s\n",ppmname);
+			exit(0);
+		}
+		if (!ppmFlag)
+			unlink(ppmname);
+	}
+};
+Image img[4] = {
+"./images/bigfoot.png",
+"./images/highscore.png",
+"./images/forestTrans.png",
+"./images/umbrella.png" };
+
+
+
 
 class Global {
 public:
 
 	int showCredit;
+	int displayscores;
+	vector<int> highscores;
 	int xres, yres;
+	GLuint highscoreTexture;
+	int showScores;
 	Flt aspectRatio;
 	Vec cameraPosition;
 	GLfloat lightPosition[4];
+	int  score = 0;
 	Global() {
 		//constructor
-		
+		highscores = getHighscore ();
 		showCredit = 0; 
 		xres=640;
 		yres=480;
@@ -183,6 +260,12 @@ public:
 int main()
 {
 	init_opengl();
+	
+  
+
+
+
+
 	int done = 0;
 	while (!done) {
 		while (x11.getXPending()) {
@@ -225,6 +308,16 @@ void init_opengl()
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
+	glGenTextures(1, &g.highscoreTexture);
+	//highscore
+	glBindTexture(GL_TEXTURE_2D, g.highscoreTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		img[1].width, img[1].height,
+		0, GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+	//-------------------------------------------------------------------------
 	//init_textures();
 }
 
@@ -281,16 +374,25 @@ int check_keys(XEvent *e)
 			case XK_Left:
 				g.cameraPosition[0] -= 0.1;
 				break;
+				case XK_Up:
+				 g.cameraPosition[2] -= 0.8;
+				break;
+			case XK_Down:
+				g.cameraPosition[2] += 0.1;
+				break;
 			case XK_q:
 				break;
 			case XK_b:
 				break;
-			case XK_s:
+			case XK_h:
+				g.displayscores ^= 1;
+				g.showScores ^= 1;
 				break;
 			case XK_c:
 				g.showCredit ^= 1;
 				break;
 			case XK_Escape:
+				writeScores(g.score, g.highscores);
 				return 1;
 		}
 	}
@@ -473,12 +575,15 @@ void drawStreet()
 		box(0.2, 5.0, 0.2);
 		glPopMatrix();
 	}
+
+	
 }
 
 void physics()
 {
 	g.cameraPosition[2] -= 0.1;
-	g.cameraPosition[0] = 1.0 + sin(g.cameraPosition[2]*0.3);
+	g.score +=1;
+	//g.cameraPosition[0] = 1.0 + sin(g.cameraPosition[2]*0.3);
 }
 
 void render()
@@ -518,16 +623,23 @@ void render()
 	glDisable(GL_LIGHTING);
 	//glDisable(GL_DEPTH_TEST);
 	//glDisable(GL_CULL_FACE);
-
 	if (g.showCredit) {
 		showCredit();
 		showMcredit();
-                displayName();  	
+		displayName();
 	} else {
 		/* code */
 	}
 	
-// Ali Display Credit on screen
+
+	if (g.displayscores)
+		displayHighscores();
+		
+	if (g.showScores)
+		drawImage(g.highscoreTexture, g.xres, g.yres);
+	
+	
+	// Ali Display Credit on screen
 	r[0].bot = g.yres - 50;
 	r[0].left = 10;
 	r[0].center = 0;
@@ -539,14 +651,16 @@ void render()
 	r[0].left = 10;
 	r[0].center = 0;
 	ggprint8b(&r[0], 16, 0x00ffff00, "H --- Highest Scores");
-	
+
+
+
 
 	r[1].bot = g.yres - 20;
 	r[1].left = 10;
 	r[1].center = 0;
-	ggprint8b(&r[1], 16, 0x00887766, "car framework");
+	ggprint8b(&r[1], 16, 0x00ffff00, "score:  %i", g.score);
 	glPopAttrib();
-	
+
 }
 
 
