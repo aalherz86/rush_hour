@@ -8,7 +8,6 @@
 
 #include "fonts.h"
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <algorithm> 
 
@@ -30,14 +29,10 @@ vector<int> getHighscore ()
 // finding the minimum score
 int findMin(vector<int> myVector) 
 {     
-	// Initialize minimum element 
 	int min = myVector[0]; 
-
-	// Traverse vector elements  
 	for (size_t i = 1; i < myVector.size(); i++) 
 		if (myVector[i] < min) 
 			min = myVector[i]; 
-
 	return min; 
 } 
 
