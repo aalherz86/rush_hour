@@ -652,8 +652,44 @@ void render()
 	r[0].center = 0;
 	ggprint8b(&r[0], 16, 0x00ffff00, "H --- Highest Scores");
 
+// Mohanad- Display Arrow Key Control  on screen
 
 
+	r[0].bot = g.yres - 100;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "-----------------------------------");
+
+	r[0].bot = g.yres - 110;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "-&-Arrow Keys Control-&-");
+
+	r[0].bot = g.yres - 130;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "Up --- Boost");
+
+	r[0].bot = g.yres - 150;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "> Right ");
+	
+	r[0].bot = g.yres - 170;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "< Left");
+
+
+	r[0].bot = g.yres - 190;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "Down --- Slow");
+
+	r[0].bot = g.yres - 200;
+	r[0].left = 10;
+	r[0].center = 0;
+	ggprint8b(&r[0], 16, 0x00ffff00, "-----------------------------------");
 
 	r[1].bot = g.yres - 20;
 	r[1].left = 10;
