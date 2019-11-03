@@ -62,8 +62,8 @@ void showCredit()
 {
 	Rect n;
 
-	n.bot = 400;
-	n.left = 280;
+	n.bot = 600;
+	n.left = 820;
 	n.center = 0;
 	ggprint8b(&n, 16, 0x00ffffff, "Ali Alherz");
 }

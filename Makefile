@@ -1,15 +1,13 @@
 CFLAGS = -I ./include
-##LIB    = ./lib/fmod/libfmodex64.so
-LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
+##LIB    = ./libggfonts.so
+LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
 
-# COMMENT: "-lssl -lcrypto" were added to our Makefile 
+all: rush_hour
 
-all: car
-
-car: car.cpp log.cpp aliA.cpp mohanadA.cpp hussainJ.cpp
-	g++ $(CFLAGS) car.cpp log.cpp  aliA.cpp mohanadA.cpp hussainJ.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -lssl -lcrypto -o car
+rush_hour: rush_hour.cpp log.cpp timers.cpp aliA.cpp mohanadA.cpp hussainJ.cpp
+	g++ $(CFLAGS) rush_hour.cpp log.cpp timers.cpp aliA.cpp mohanadA.cpp hussainJ.cpp libggfonts.a -Wall -Wextra $(LFLAGS) -orush_hour
 
 clean:
-	rm -f car
+	rm -f rush_hour
 	rm -f *.o
 
