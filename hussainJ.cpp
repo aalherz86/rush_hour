@@ -41,7 +41,6 @@ void displayName() {
 	n.center = 0;
 	ggprint8b(&n, 16, 0x00fffff, "Hussain Jafri");
 }
-/*
 // Adding drawImage function here with its full contents.
 void drawImage(GLuint texture, int xres, int yres)
 {
@@ -53,6 +52,7 @@ void drawImage(GLuint texture, int xres, int yres)
 	glTexCoord2f(1.0f, 1.0f); glVertex2i(xres, 0);
 	glEnd();
 }
+/*
 // This is my Fridday code.
 // I have added a functoin that to display a timer by seconds and store the Game timer for the user on the screen
 //
