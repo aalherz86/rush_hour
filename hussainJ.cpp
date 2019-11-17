@@ -41,7 +41,7 @@ void displayName() {
 	n.center = 0;
 	ggprint8b(&n, 16, 0x00fffff, "Hussain Jafri");
 }
-
+/*
 // Adding drawImage function here with its full contents.
 void drawImage(GLuint texture, int xres, int yres)
 {
@@ -71,3 +71,4 @@ void displaySeconds() {
     n.center = 0;
     ggprint8b(&n, 10, 0x00fffff, "Timer: ");
 }
+*/
