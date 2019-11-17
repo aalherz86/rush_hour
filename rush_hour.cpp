@@ -19,8 +19,8 @@
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-#include "headers/log.h"
-#include "headers/fonts.h"
+#include "log.h"
+#include "fonts.h"
 #include <fstream>
 #include <string>
 using namespace std;

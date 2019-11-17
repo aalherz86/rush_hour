@@ -13,6 +13,11 @@
 
 using namespace std;
 
+
+// My friday code
+
+
+
 // getting current highscores
 vector<int> getHighscore ()
 {
