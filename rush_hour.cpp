@@ -15,13 +15,12 @@
 #include <cmath>
 #include <X11/Xlib.h>
 //#include <X11/Xutil.h>
-//#include <GL/gl.h>
+//#include <GL/gl->h>
 //#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-#include "log.h"
-#include "fonts.h"
-#include "headers/Image.h"
+#include "headers/log.h"
+#include "headers/fonts.h"
 #include <fstream>
 #include <string>
 using namespace std;
@@ -72,6 +71,60 @@ extern void displayHighscores();
 extern void drawImage(GLuint, int, int);
 extern int updatedScores (int, char[]);
 
+class Image {
+public:
+    int width, height;
+    unsigned char *data;
+    ~Image() { delete [] data; }
+    Image(const char *fname) {
+        if (fname[0] == '\0')
+            return;
+        //printf("fname **%s**\n", fname);
+        int ppmFlag = 0;
+        char name[40];
+        strcpy(name, fname);
+        int slen = strlen(name);
+        char ppmname[80];
+        if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+            ppmFlag = 1;
+        if (ppmFlag) {
+            strcpy(ppmname, name);
+        } else {
+            name[slen-4] = '\0';
+            //printf("name **%s**\n", name);
+            sprintf(ppmname,"%s.ppm", name);
+            //printf("ppmname **%s**\n", ppmname);
+            char ts[100];
+            //system("convert eball.jpg eball.ppm");
+            sprintf(ts, "convert %s %s", fname, ppmname);
+            system(ts);
+        }
+        //sprintf(ts, "%s", name);
+        FILE *fpi = fopen(ppmname, "r");
+        if (fpi) {
+            char line[200];
+            fgets(line, 200, fpi);
+            fgets(line, 200, fpi);
+            //skip comments and blank lines
+            while (line[0] == '#' || strlen(line) < 2)
+                fgets(line, 200, fpi);
+            sscanf(line, "%i %i", &width, &height);
+            fgets(line, 200, fpi);
+            //get pixel data
+            int n = width * height * 3;
+            data = new unsigned char[n];
+            for (int i=0; i<n; i++)
+                data[i] = fgetc(fpi);
+            fclose(fpi);
+        } else {
+            printf("ERROR opening image: %s\n",ppmname);
+            exit(0);
+        }
+        if (!ppmFlag)
+            unlink(ppmname);
+    }
+};
+
 Image img[4] = {
 "./images/bigfoot.png",
 "./images/highscore.png",
@@ -87,13 +140,26 @@ int showCredit;
 	int showScores, score;
 	int xres, yres;
 	char keys[65536];
+
+    static Global * GetInstance()
+    {
+        if (!instance)
+            instance = new Global();
+        return instance;
+    }
+private:
+    static Global * instance;
 	Global() {
 		highscores = getHighscore();
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
 	}
-} gl;
+    Global(Global const& copy);
+    Global & operator=(Global const& copy);
+};
+Global* Global::instance = 0;
+Global * gl = Global::GetInstance();
 
 class Ship {
 public:
@@ -105,8 +171,8 @@ public:
 public:
 	Ship() {
 		VecZero(dir);
-		pos[0] = (Flt)(gl.xres/2);
-		pos[1] = (Flt)(gl.yres/2);
+		pos[0] = (Flt)(gl->xres/2);
+		pos[1] = (Flt)(gl->yres/2);
 		pos[2] = 0.0f;
 		VecZero(vel);
 		angle = 0.0;
@@ -173,8 +239,8 @@ public:
 				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
 				angle += inc;
 			}
-			a->pos[0] = (Flt)(rand() % gl.xres);
-			a->pos[1] = (Flt)(rand() % gl.yres);
+			a->pos[0] = (Flt)(rand() % gl->xres);
+			a->pos[1] = (Flt)(rand() % gl->yres);
 			a->pos[2] = 0.0f;
 			a->angle = 0.0;
 			a->rotate = rnd() * 4.0 - 2.0;
@@ -210,7 +276,7 @@ public:
 		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
 		XSetWindowAttributes swa;
-		setup_screen_res(gl.xres, gl.yres);
+		setup_screen_res(gl->xres, gl->yres);
 		dpy = XOpenDisplay(NULL);
 		if (dpy == NULL) {
 			std::cout << "\n\tcannot connect to X server" << std::endl;
@@ -220,12 +286,12 @@ public:
 		XWindowAttributes getWinAttr;
 		XGetWindowAttributes(dpy, root, &getWinAttr);
 		int fullscreen=0;
-		gl.xres = w;
-		gl.yres = h;
+		gl->xres = w;
+		gl->yres = h;
 		if (!w && !h) {
 			//Go to fullscreen.
-			gl.xres = getWinAttr.width;
-			gl.yres = getWinAttr.height;
+			gl->xres = getWinAttr.width;
+			gl->yres = getWinAttr.height;
 			//When window is fullscreen, there is no client window
 			//so keystrokes are linked to the root window.
 			XGrabKeyboard(dpy, root, False,
@@ -247,9 +313,9 @@ public:
 			winops |= CWOverrideRedirect;
 			swa.override_redirect = True;
 		}
-		win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+		win = XCreateWindow(dpy, root, 0, 0, gl->xres, gl->yres, 0,
 			vi->depth, InputOutput, vi->visual, winops, &swa);
-		//win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+		//win = XCreateWindow(dpy, root, 0, 0, gl->xres, gl->yres, 0,
 		//vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
 		set_title();
 		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
@@ -271,7 +337,7 @@ public:
 		if (e->type != ConfigureNotify)
 			return;
 		XConfigureEvent xce = e->xconfigure;
-		if (xce.width != gl.xres || xce.height != gl.yres) {
+		if (xce.width != gl->xres || xce.height != gl->yres) {
 			//Window size did change.
 			reshape_window(xce.width, xce.height);
 		}
@@ -282,12 +348,12 @@ public:
 		glViewport(0, 0, (GLint)width, (GLint)height);
 		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+		glOrtho(0, gl->xres, 0, gl->yres, -1, 1);
 		set_title();
 	}
 	void setup_screen_res(const int w, const int h) {
-		gl.xres = w;
-		gl.yres = h;
+		gl->xres = w;
+		gl->yres = h;
 	}
 	void swapBuffers() {
 		glXSwapBuffers(dpy, win);
@@ -374,12 +440,12 @@ int main()
 void init_opengl(void)
 {
 	//OpenGL initialization
-	glViewport(0, 0, gl.xres, gl.yres);
+	glViewport(0, 0, gl->xres, gl->yres);
 	//Initialize matrices
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//This sets 2D mode (no perspective)
-	glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+	glOrtho(0, gl->xres, 0, gl->yres, -1, 1);
 	//
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -393,8 +459,8 @@ void init_opengl(void)
 	initialize_fonts();
 	// initiate texture
 	
-	glGenTextures(1, &gl.highscoreTexture);
-	glBindTexture(GL_TEXTURE_2D, gl.highscoreTexture);
+	glGenTextures(1, &gl->highscoreTexture);
+	glBindTexture(GL_TEXTURE_2D, gl->highscoreTexture);
 	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -521,13 +587,13 @@ int check_keys(XEvent *e)
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
 	//Log("key: %i\n", key);
 	if (e->type == KeyRelease) {
-		gl.keys[key]=0;
+		gl->keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
 			shift=0;
 		return 0;
 	}
 	if (e->type == KeyPress) {
-		gl.keys[key]=1;
+		gl->keys[key]=1;
 		if (key == XK_Shift_L || key == XK_Shift_R) {
 			shift=1;
 			return 0;
@@ -538,14 +604,14 @@ int check_keys(XEvent *e)
 	if (shift){}
 	switch (key) {
 		case XK_Escape:
-			writeScores(gl.score, gl.highscores);
+			writeScores(gl->score, gl->highscores);
 			return 1;
 		case XK_c:
-		gl.showCredit ^= 1;
+		gl->showCredit ^= 1;
 			break;
 		case XK_h:
-		gl.showScores ^= 1;
-			gl.displayscores ^= 1;
+		gl->showScores ^= 1;
+			gl->displayscores ^= 1;
 			
 			break;
 		case XK_Down:
@@ -619,16 +685,16 @@ void physics()
 	g.ship.pos[1] += g.ship.vel[1];
 	//Check for collision with window edges
 	if (g.ship.pos[0] < 0.0) {
-		g.ship.pos[0] += (float)gl.xres;
+		g.ship.pos[0] += (float)gl->xres;
 	}
-	else if (g.ship.pos[0] > (float)gl.xres) {
-		g.ship.pos[0] -= (float)gl.xres;
+	else if (g.ship.pos[0] > (float)gl->xres) {
+		g.ship.pos[0] -= (float)gl->xres;
 	}
 	else if (g.ship.pos[1] < 0.0) {
-		g.ship.pos[1] += (float)gl.yres;
+		g.ship.pos[1] += (float)gl->yres;
 	}
-	else if (g.ship.pos[1] > (float)gl.yres) {
-		g.ship.pos[1] -= (float)gl.yres;
+	else if (g.ship.pos[1] > (float)gl->yres) {
+		g.ship.pos[1] -= (float)gl->yres;
 	}
 	//
 	//
@@ -653,16 +719,16 @@ void physics()
 		b->pos[1] += b->vel[1];
 		//Check for collision with window edges
 		if (b->pos[0] < 0.0) {
-			b->pos[0] += (float)gl.xres;
+			b->pos[0] += (float)gl->xres;
 		}
-		else if (b->pos[0] > (float)gl.xres) {
-			b->pos[0] -= (float)gl.xres;
+		else if (b->pos[0] > (float)gl->xres) {
+			b->pos[0] -= (float)gl->xres;
 		}
 		else if (b->pos[1] < 0.0) {
-			b->pos[1] += (float)gl.yres;
+			b->pos[1] += (float)gl->yres;
 		}
-		else if (b->pos[1] > (float)gl.yres) {
-			b->pos[1] -= (float)gl.yres;
+		else if (b->pos[1] > (float)gl->yres) {
+			b->pos[1] -= (float)gl->yres;
 		}
 		i++;
 	}
@@ -674,16 +740,16 @@ void physics()
 		a->pos[1] += a->vel[1];
 		//Check for collision with window edges
 		if (a->pos[0] < -100.0) {
-			a->pos[0] += (float)gl.xres+200;
+			a->pos[0] += (float)gl->xres+200;
 		}
-		else if (a->pos[0] > (float)gl.xres+100) {
-			a->pos[0] -= (float)gl.xres+200;
+		else if (a->pos[0] > (float)gl->xres+100) {
+			a->pos[0] -= (float)gl->xres+200;
 		}
 		else if (a->pos[1] < -100.0) {
-			a->pos[1] += (float)gl.yres+200;
+			a->pos[1] += (float)gl->yres+200;
 		}
-		else if (a->pos[1] > (float)gl.yres+100) {
-			a->pos[1] -= (float)gl.yres+200;
+		else if (a->pos[1] > (float)gl->yres+100) {
+			a->pos[1] -= (float)gl->yres+200;
 		}
 		a->angle += a->rotate;
 		a = a->next;
@@ -747,17 +813,17 @@ void physics()
 	}
 	//---------------------------------------------------
 	//check keys pressed now
-	if (gl.keys[XK_Left]) {
+	if (gl->keys[XK_Left]) {
 		g.ship.angle += 4.0;
 		if (g.ship.angle >= 360.0f)
 			g.ship.angle -= 360.0f;
 	}
-	if (gl.keys[XK_Right]) {
+	if (gl->keys[XK_Right]) {
 		g.ship.angle -= 4.0;
 		if (g.ship.angle < 0.0f)
 			g.ship.angle += 360.0f;
 	}
-	if (gl.keys[XK_Up]) {
+	if (gl->keys[XK_Up]) {
 		//apply thrust
 		//convert ship angle to radians
 		Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
@@ -775,7 +841,7 @@ void physics()
 			g.ship.vel[1] *= speed;
 		}
 	}
-	if (gl.keys[XK_space]) {
+	if (gl->keys[XK_space]) {
 		//a little time between each bullet
 		struct timespec bt;
 		clock_gettime(CLOCK_REALTIME, &bt);
@@ -825,10 +891,10 @@ void render()
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//
-	r.bot = gl.yres - 20;
+	r.bot = gl->yres - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, 0x00ff0000, "Score: %i", gl.score);
+	ggprint8b(&r, 16, 0x00ff0000, "Score: %i", gl->score);
 	ggprint8b(&r, 16, 0x00ffff00, "H -- High Scores ");
 	ggprint8b(&r, 16, 0x00ffff00, "C -- credit");
 	//ggprint8b(&r, 16, 0x00ffff00, "Down --- Slow");
@@ -858,9 +924,9 @@ void render()
 	glVertex2f(0.0f, 0.0f);
 	glEnd();
 	glPopMatrix();
-	if (gl.keys[XK_Up] || g.mouseThrustOn) {
+	if (gl->keys[XK_Up] || g.mouseThrustOn) {
 		int i;
-		gl.score +=1;
+		gl->score +=1;
 		//draw thrust
 		Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
 		//convert angle to a vector
@@ -928,7 +994,7 @@ void render()
 		glEnd();
 	}
 
-	if (gl.showCredit) {
+	if (gl->showCredit) {
 		showCredit();
 		showMcredit();
 		displayName();
@@ -938,10 +1004,10 @@ void render()
 	
 
 		
-	if (gl.showScores)
-		drawImage(gl.highscoreTexture, gl.xres, gl.yres);
+	if (gl->showScores)
+		drawImage(gl->highscoreTexture, gl->xres, gl->yres);
 
-	if (gl.displayscores)
+	if (gl->displayscores)
 		displayHighscores();	
 
 		
