@@ -10,6 +10,7 @@
    3-Fix is to correct the buggy code.
    4-Review is to ensure the bug you fixed are working correctly now.
    */
+// Sixth Modification: This is Friday code.
 
 #include "fonts.h"
 #include <stdio.h>
@@ -74,17 +75,15 @@ void displayHighscores()
 	n[2].left = 800;
 	n[2].center = 0;	
 
-	for (size_t i = 0; i < 5; i++)
-	{
+	for (size_t i = 0; i < 5; i++) {
 		ggprint8b(&n[1], 16, 0x00ffffff, " %i", scores[i]);
 	}
-	for (size_t i = 1; i < 6; i++)
-	{
+	for (size_t i = 1; i < 6; i++) {
 		ggprint8b(&n[2], 16, 0x00ffffff, " %i - ", i);
 	}
 }
 
-
+// This is my Friday code.
 
 
 
