@@ -7,7 +7,6 @@
 
 
 
-}; // end of image class
 
 
 #endif //RUSH_HOUR_ALIA_H
