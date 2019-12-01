@@ -5,8 +5,23 @@
 #ifndef RUSH_HOUR_ALIA_H
 #define RUSH_HOUR_ALIA_H
 
+enum GameStates {
+    PLAY,
+    CREDITS,
+    HIGHSCORES,
+};
+
+class Play {
+public:
+    int gameState;
+    Play();
+};
+
+
 
 
 
 
 #endif //RUSH_HOUR_ALIA_H
+
+
