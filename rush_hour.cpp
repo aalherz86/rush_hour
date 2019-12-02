@@ -72,13 +72,18 @@ extern vector<int> getHighscore ();
 extern void displayHighscores();
 extern void drawImage(GLuint, int, int);
 extern int updatedScores (int, char[]);
+extern void gameMenu(int, int, GLuint);
+extern  void check_Button(XEvent* , Play& );
+
 
 /****************************************************************/
 
 
 /**************** Declaration of classes' objects *****************************/
-Image img[1] = {
-"./images/highscore.png"};
+Image img[2] = {
+"./images/highscore.png",
+"./images/menu.png"
+};
 Play play;
 
 
@@ -94,6 +99,7 @@ int showCredit;
 	int showScores, score;
 	int xres, yres;
 	char keys[65536];
+    GLuint menuTexture;
 
     static Global * GetInstance()
     {
@@ -274,7 +280,7 @@ public:
 		set_title();
 		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 		glXMakeCurrent(dpy, win, glc);
-		show_mouse_cursor(0);
+		show_mouse_cursor(1);
 	}
 	~X11_wrapper() {
 		XDestroyWindow(dpy, win);
@@ -422,6 +428,16 @@ void init_opengl(void)
 		img[0].width, img[0].height,
 		0, GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
 	//
+
+    // menu init
+    glGenTextures(1, &gl->menuTexture);
+    glBindTexture(GL_TEXTURE_2D, gl->menuTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+                 img[1].width, img[1].height,
+                 0, GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+
 }
 
 void normalize2d(Vec v)
@@ -443,9 +459,7 @@ void check_mouse(XEvent *e)
 	//Was a mouse button clicked?
 	static int savex = 0;
 	static int savey = 0;
-	//
-	static int ct=0;
-	//std::cout << "m" << std::endl << std::flush;
+
 	if (e->type == ButtonRelease) {
 		return;
 	}
@@ -488,50 +502,15 @@ void check_mouse(XEvent *e)
 	}
 	//keys[XK_Up] = 0;
 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
-		//Mouse moved
-		int xdiff = savex - e->xbutton.x;
-		int ydiff = savey - e->xbutton.y;
-		if (++ct < 10)
-			return;		
-		//std::cout << "savex: " << savex << std::endl << std::flush;
-		//std::cout << "e->xbutton.x: " << e->xbutton.x << std::endl <<
-		//std::flush;
-		if (xdiff > 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.ship.angle += 0.05f * (float)xdiff;
-			if (g.ship.angle >= 360.0f)
-				g.ship.angle -= 360.0f;
-		}
-		else if (xdiff < 0) {
-			//std::cout << "xdiff: " << xdiff << std::endl << std::flush;
-			g.ship.angle += 0.05f * (float)xdiff;
-			if (g.ship.angle < 0.0f)
-				g.ship.angle += 360.0f;
-		}
-		if (ydiff > 0) {
-			//apply thrust
-			//convert ship angle to radians
-			Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
-			//convert angle to a vector
-			Flt xdir = cos(rad);
-			Flt ydir = sin(rad);
-			g.ship.vel[0] += xdir * (float)ydiff * 0.01f;
-			g.ship.vel[1] += ydir * (float)ydiff * 0.01f;
-			Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
-					g.ship.vel[1]*g.ship.vel[1]);
-			if (speed > 10.0f) {
-				speed = 10.0f;
-				normalize2d(g.ship.vel);
-				g.ship.vel[0] *= speed;
-				g.ship.vel[1] *= speed;
-			}
-			g.mouseThrustOn = true;
-			clock_gettime(CLOCK_REALTIME, &g.mouseThrustTimer);
-		}
-		x11.set_mouse_position(100,100);
-		savex=100;
-		savey=100;
+        savex = e->xbutton.x;
+        savey = e->xbutton.y;
 	}
+    if (play.gameState == MENU) {
+        check_Button(e, play);
+    }
+    if (play.gameState == GAMEOVER) {
+        check_Button(e, play);
+    }
 }
 
 int check_keys(XEvent *e)
@@ -842,6 +821,9 @@ void physics()
 void render()
 {
     switch (play.gameState) {
+        case MENU:
+            gameMenu(gl->xres,gl->yres,gl->menuTexture);
+            break;
         case PLAY:
 
             Rect r;
