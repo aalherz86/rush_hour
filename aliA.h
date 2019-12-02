@@ -9,6 +9,9 @@ enum GameStates {
     PLAY,
     CREDITS,
     HIGHSCORES,
+    MENU,
+    GAMEOVER,
+    SETTINGS
 };
 
 class Play {
