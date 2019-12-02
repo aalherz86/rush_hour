@@ -17,7 +17,7 @@ using namespace std;
 
 // My friday code
 Play::Play() {
-    gameState = PLAY;
+    gameState = MENU;
 }
 
 
