@@ -77,6 +77,8 @@ extern void check_Button(XEvent* , Play& );
 extern void drawVehicle(int, int);
 extern void initCreditScreen();
 extern void drawCredit(int, int);
+extern void initTiles(void);
+extern void renderLevel(int);
 
 
 /****************************************************************/
@@ -443,6 +445,9 @@ void init_opengl(void)
                  0, GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 
     initCreditScreen();
+    // init tiles
+    initTiles();
+
 
 }
 
@@ -834,6 +839,7 @@ void render()
 
             Rect r;
             glClear(GL_COLOR_BUFFER_BIT);
+            renderLevel(gl->yres);
             //
             r.bot = gl->yres - 20;
             r.left = 10;
@@ -892,7 +898,7 @@ void render()
                 glEnd();
             }
             //-------------------------------------------------------------------------
-            //Draw the asteroids
+            /*/Draw the asteroids
             {
                 Asteroid *a = g.ahead;
                 while (a) {
@@ -937,7 +943,7 @@ void render()
                 glVertex2f(b->pos[0] + 1.0f, b->pos[1] - 1.0f);
                 glVertex2f(b->pos[0] + 1.0f, b->pos[1] + 1.0f);
                 glEnd();
-            }
+            }*/
 
 
             break;
@@ -952,8 +958,6 @@ void render()
             showMcredit();
             displayName();
             drawCredit(gl->xres, gl->yres);
-
-
 
             break;
 
