@@ -73,7 +73,10 @@ extern void displayHighscores();
 extern void drawImage(GLuint, int, int);
 extern int updatedScores (int, char[]);
 extern void gameMenu(int, int, GLuint);
-extern  void check_Button(XEvent* , Play& );
+extern void check_Button(XEvent* , Play& );
+extern void drawVehicle(int, int);
+extern void initCreditScreen();
+extern void drawCredit(int, int);
 
 
 /****************************************************************/
@@ -100,6 +103,7 @@ int showCredit;
 	int xres, yres;
 	char keys[65536];
     GLuint menuTexture;
+    int vehicleX = 0, vehicleY = 0;
 
     static Global * GetInstance()
     {
@@ -437,6 +441,8 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
                  img[1].width, img[1].height,
                  0, GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+
+    initCreditScreen();
 
 }
 
@@ -860,6 +866,7 @@ void render()
             glColor3f(1.0f, 0.0f, 0.0f);
             glBegin(GL_POINTS);
             glVertex2f(0.0f, 0.0f);
+            drawVehicle(gl->vehicleX, gl->vehicleY);
             glEnd();
             glPopMatrix();
             if (gl->keys[XK_Up] || g.mouseThrustOn) {
@@ -939,9 +946,15 @@ void render()
             displayHighscores();
             break;
         case CREDITS:
+            glClear(GL_COLOR_BUFFER_BIT);
+
             showCredit();
             showMcredit();
             displayName();
+            drawCredit(gl->xres, gl->yres);
+
+
+
             break;
 
     }

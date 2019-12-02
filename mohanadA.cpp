@@ -27,6 +27,10 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include "mohanadA.h"
+#include <GL/glu.h>
+#include "Image.h"
+
+
 
 using namespace std;
 
@@ -86,6 +90,78 @@ void displayHighscores()
 }
 
 // This is my Friday code.
+void drawVehicle(int vehicleX, int vehicleY)
+{
+    glPointSize(10.0);
+    glBegin(GL_POINTS);
+    glColor3f(0,0,0);
+    glVertex2f(vehicleX - 25, vehicleY + 16);
+    glVertex2f(vehicleX + 25, vehicleY + 16);
+    glVertex2f(vehicleX - 25, vehicleY - 16);
+    glVertex2f(vehicleX + 25, vehicleY - 16);
+    glEnd();
+
+    glBegin(GL_QUADS);
+    glColor3f(1,0,0);
+    glVertex2f(vehicleX - 25, vehicleY + 20);
+    glVertex2f(vehicleX - 25, vehicleY - 20);
+    glVertex2f(vehicleX + 25, vehicleY - 20);
+    glVertex2f(vehicleX + 25, vehicleY + 20);
+    glEnd();
+
+    glBegin(GL_QUADS);
+    glColor3f(0,0,1);
+    glVertex2f(vehicleX - 23, vehicleY + 20);
+    glVertex2f(vehicleX - 19, vehicleY + 40);
+    glVertex2f(vehicleX + 19, vehicleY + 40);
+    glVertex2f(vehicleX + 23, vehicleY + 20);
+    glEnd();
+
+    glBegin(GL_QUADS);
+    glColor3f(0,0,1);
+    glVertex2f(vehicleX - 23, vehicleY - 20);
+    glVertex2f(vehicleX - 19, vehicleY - 35);
+    glVertex2f(vehicleX + 19, vehicleY - 35);
+    glVertex2f(vehicleX + 23, vehicleY - 20);
+    glEnd();
+}
+
+// credit screen
+Image * title;
+GLuint titleTex;
+void initCreditScreen()
+{
+
+    title = new Image("images/credit.png");
+    glGenTextures( 1, &titleTex);
+    glBindTexture( GL_TEXTURE_2D, titleTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexImage2D( GL_TEXTURE_2D, 0, 3, title->width, title->height, 0, GL_RGB,
+                  GL_UNSIGNED_BYTE, title->data);
+    glBindTexture( GL_TEXTURE_2D, 0);
+
+}
+
+void drawCredit(int xres, int yres) {
+
+    float w;
+    float h;
+
+    glPushMatrix();
+    w = 250;
+    h = 150;
+    glTranslatef(xres/2, yres/2 + 200, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBindTexture(GL_TEXTURE_2D, titleTex);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0, 1);glVertex2f(-w, -h);
+    glTexCoord2f(0.00, 0.00);glVertex2f(-w,  h);
+    glTexCoord2f(1.00, 0.00);glVertex2f( w,  h);
+    glTexCoord2f(1.00, 1);glVertex2f( w, -h);
+    glEnd();
+}
+
 
 
 
